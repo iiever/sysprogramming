@@ -1,13 +1,3 @@
-/*
- * Assumes there is only one tcp line when you do netstat -tan
- * reads from /proc/net/tcp
- * discards the first line which are merely headers
- * retains second line and extracts the local ip, local port, remote ip, remote port
- *
- * Paul Chin
- * 8-July-2018
- *
- */
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,27 +5,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
+//#include "isitnumber.h"
+//#include "splitnewline.h"
 #include <arpa/inet.h>
-#include "hextoIP.h"  //make sure this file is in same folder
-
-
-void extractIpAndPort(char* ip, int* port, char* line, char* separator){
-	int i=0;
-	char* token;
-
-	char localipport[2][64];
-	token = strtok(line,separator);
-	while (token != NULL) {
-		strcpy(localipport[i],token);
-		token =	strtok(NULL, separator);
-		i++;
-	}
-
-	*port = strtol(localipport[1], NULL, 16);
-	strcpy(ip,hextoIP(localipport[0]));
-
-	return;
-}
+#include "hextoIP.h"
 
 int main ()
 {
@@ -49,26 +22,22 @@ int main ()
 	char lines[2][128];
 	int i=0;
 
-	// Read the contents of the file /proc/net/tcp
+	/* Read the contents of the file. */
 	fd = open (filename, O_RDONLY);
 	length = read (fd, results, sizeof (results));
 	close (fd);
 
-	// read does not NUL-terminate the buffer, so do it here. 
+	/* read does not NUL-terminate the buffer, so do it here. */
 	results[length] ='\0';
 
-	// split 1st and 2nd lines
-	// 1st line are merely headers, we need 2nd line
 	token = strtok(results,sep);
 	while (token != NULL) {
 		strcpy(lines[i++],token);
 		token =	strtok(NULL, sep);
 	}
 
-	printf("1st line:\n %s\n", lines[0]);
-	printf("2nd line:\n %s\n", lines[1]);
+	printf("All lines:\n %s\n", lines[1]);
 
-	// 2nd contains ip and port numbers, we split them by spaces
 	const char sepspace[] = " ";
 	char linenums[32][64];
 	i=0;
@@ -95,20 +64,47 @@ int main ()
 			printf("%s\n",linenums[i]);
 	}
 
-	// we extract the local ip, local port and remote ip and remote port
-	char locIP[64];
-	int localPt;
-	char remIP[64];
-	int remotePt;
+	char localIP[64];   char locIP[64];
+	char localPort[64]; int localPt;
+	char remoteIP[64];  char remIP[64];
+	char remotePort[64]; int remotePt;
 
 	struct in_addr addr;
 	
 	const char sepcolon[] = ":";
-	extractIpAndPort(locIP, &localPt, linenums[1], sepcolon);
+	char localipport[2][64];
+	i=0;
+	token = NULL;
+
+	token = strtok(linenums[1],sepcolon);
+	while (token != NULL) {
+		strcpy(localipport[i],token);
+		token =	strtok(NULL, sepcolon);
+		i++;
+	}
+
+	strcpy(localIP, localipport[0]);
+	strcpy(localPort, localipport[1]);
+	localPt = strtol(localPort, NULL, 16);
+	strcpy(locIP,hextoIP(localIP));
 	
+
 	printf("\nLocal IP: %s, Local Port: %d\n\n",locIP, localPt);
 
-	extractIpAndPort(remIP, &remotePt, linenums[2], sepcolon);
+	i=0;
+	token = NULL;
+
+	token = strtok(linenums[2],sepcolon);
+	while (token != NULL) {
+		strcpy(localipport[i],token);
+		token =	strtok(NULL, sepcolon);
+		i++;
+	}
+
+	strcpy(remoteIP, localipport[0]);
+	strcpy(remotePort, localipport[1]);
+	remotePt = strtol(remotePort, NULL, 16);
+	strcpy(remIP,hextoIP(remoteIP));
 	printf("\nRemote IP: %s, Remote Port: %d\n\n",remIP, remotePt);
 
 	return 0;
