@@ -5,9 +5,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
-#include "isitnumber.h"
-#include "splitnewline.h"
+//#include "isitnumber.h"
+//#include "splitnewline.h"
 #include <arpa/inet.h>
+#include "hextoIP.h"
 
 int main ()
 {
@@ -63,11 +64,13 @@ int main ()
 			printf("%s\n",linenums[i]);
 	}
 
-	char localIP[64];
+	char localIP[64];   char locIP[64];
 	char localPort[64]; int localPt;
-	char remoteIP[64];
+	char remoteIP[64];  char remIP[64];
 	char remotePort[64]; int remotePt;
 
+	struct in_addr addr;
+	
 	const char sepcolon[] = ":";
 	char localipport[2][64];
 	i=0;
@@ -83,8 +86,10 @@ int main ()
 	strcpy(localIP, localipport[0]);
 	strcpy(localPort, localipport[1]);
 	localPt = strtol(localPort, NULL, 16);
+	strcpy(locIP,hextoIP(localIP));
+	
 
-	printf("\nLocal IP: %s, Local Port: %d\n\n",localIP, localPt);
+	printf("\nLocal IP: %s, Local Port: %d\n\n",locIP, localPt);
 
 	i=0;
 	token = NULL;
@@ -99,7 +104,8 @@ int main ()
 	strcpy(remoteIP, localipport[0]);
 	strcpy(remotePort, localipport[1]);
 	remotePt = strtol(remotePort, NULL, 16);
-	printf("\nRemote IP: %s, Remote Port: %d\n\n",remoteIP, remotePt);
+	strcpy(remIP,hextoIP(remoteIP));
+	printf("\nRemote IP: %s, Remote Port: %d\n\n",remIP, remotePt);
 
 	return 0;
 }
