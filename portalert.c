@@ -111,6 +111,10 @@ int main ()
 	extractIpAndPort(remIP, &remotePt, linenums[2], sepcolon);
 	printf("\nRemote IP: %s, Remote Port: %d\n\n",remIP, remotePt);
 
+	if(strcmp(remIP, "0.0.0.0") != 0) {
+		printf("Connection alert from: %s\n", remIP);
+	}
+
 	return 0;
 }
 

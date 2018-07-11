@@ -8,7 +8,7 @@ char* hextoIP(char* hexstr) {
 	char taddr[128];
 
 	sprintf(taddr,"0x%s",hexstr);
-	printf("taddr: %s\n", taddr);
+//	printf("taddr: %s\n", taddr);
 
 
 	addr.s_addr = htonl(inet_addr(taddr));
