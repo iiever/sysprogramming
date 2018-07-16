@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 void main() {
-	char *param[3];
+	char *param[16];
 	param[0] = "/bin/ls";
 	param[1] = "-l";
 	param[2] = "/root";

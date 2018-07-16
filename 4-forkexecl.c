@@ -3,7 +3,7 @@
 int main() {
 	int pid = fork();
 
-	if (pid==0) {
+	if (pid!=0) {
 		printf("I am parent\n");
 	} else {
 		sleep(2);
